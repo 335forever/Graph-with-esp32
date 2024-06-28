@@ -189,25 +189,30 @@ void Graph::deleteLines()  {
 }
 
 // Vẽ đồ thị
-void Graph::drawChart(std::vector<std::pair<int,int>> data)  {
+void Graph::drawChart(std::queue<std::pair<int,int>> data)  {
   if (!tft) return;
   if (!pointOn && !lineOn) return;
   
   // Chuyển giá trị (key,value) sang tọa độ pixel (x,y)
   std::vector<std::pair<int,int>> positions;
-  for (int i = 0; i < data.size(); i++) {
-    if (data[i].first < keys[0] || keys[keys.size() - 1] < data[i].first || data[i].second < values[0] || values[values.size() - 1] < data[i].second) continue; // Bỏ điểm ngoài range
+  
+  while (data.size() != 0) {
+    std::pair<int,int> point = data.front();
+    data.pop();
+
+    if (point.first < keys[0] || keys[keys.size() - 1] < point.first || point.second < values[0] || values[values.size() - 1] < point.second) continue; // Bỏ điểm ngoài range
     
-    float t = (float)(data[i].first - keys[0]) / (keys[keys.size() - 1] - keys[0]); // Tỉ số độ dài
+    float t = (float)(point.first - keys[0]) / (keys[keys.size() - 1] - keys[0]); // Tỉ số độ dài
     float tt = (endDrawZoneX - startDrawZoneX - 10) * t; // Khoảng cách so với gốc tọa độ (pixel)
     int x = startDrawZoneX + 10 + static_cast<int>(round(tt)); // Tọa độ thực trên màn hình
     
-    float p = (float)(data[i].second - values[0]) / (values[values.size() - 1] - values[0]);  // Tỉ số độ dài
+    float p = (float)(point.second - values[0]) / (values[values.size() - 1] - values[0]);  // Tỉ số độ dài
     float pp = (endDrawZoneY - startDrawZoneY - 10) * (1 - p); // Khoảng cách so với gốc tọa độ (pixel)
     int y = startDrawZoneY + static_cast<int>(round(pp)); // Tọa độ thực trên màn hình
     
     positions.push_back(std::make_pair(x,y));
   }
+  
   pointPositions = positions;  // Lưu lại danh sách tọa độ
   
   if (pointOn && lineOn) {
@@ -260,4 +265,8 @@ void Graph::enablePoint(bool status) {
 // Bật chế độ vẽ đồ thị đường
 void Graph::enableLine(bool status) {
   lineOn = status;
+}
+
+void  render()  {
+  
 }

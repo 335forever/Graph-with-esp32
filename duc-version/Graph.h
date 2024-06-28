@@ -58,7 +58,7 @@ public:
     void drawLines();
     void deleteLines();
 
-    void drawChart(std::vector<std::pair<int,int>> data);
+    void drawChart(std::queue<std::pair<int,int>> data);
     void deleteChart();
     
     void drawBorder(uint16_t borderColor);

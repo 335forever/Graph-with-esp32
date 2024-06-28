@@ -59,30 +59,35 @@ void enableMode1() {
   Serial.println("mode 1"); 
   // tft.setCursor(0, 0);
   tft.fillScreen(ILI9341_BLACK);
-  tft.setRotation(3);
+  //tft.setRotation(3);
   // tft.setTextColor(ILI9341_YELLOW);
   // tft.println("mode1");
   
-  std::pair<int, int> keyRange = std::make_pair(10, 50);
+  std::pair<int, int> keyRange = std::make_pair(0, 10);
   std::pair<int, int> valueRange = std::make_pair(200, 500);
-  std::pair<int, int> pointNum = std::make_pair(7, 6);
+  std::pair<int, int> pointNum = std::make_pair(11, 6);
 
   // Khởi tạo đối tượng Graph
-  Graph myGraph("Graph test",
+  Graph myGraph("Luu Duc",
                 10, 10, 
-                250, 150, 
+                220, 150, 
                 ILI9341_BLUE, ILI9341_WHITE, ILI9341_GREEN);
   myGraph.setPrinter(&tft);
   myGraph.drawBase();
-  myGraph.drawBorder(ILI9341_CYAN);
+  myGraph.drawBorder(ILI9341_RED);
 
   myGraph.drawRulerX(keyRange, pointNum.first);
   myGraph.drawRulerY(valueRange, pointNum.second);
   
   myGraph.enableLine(true);
-  myGraph.enablePoint(false);
+  myGraph.enablePoint(true);
   
+  std::vector<std::pair<int,int>> vectorData = myGraph.generateData(keyRange, valueRange, 11);
+  std::queue<std::pair<int,int>> queueData;
+  for (int i = 0; i< vectorData.size(); i++) queueData.push(vectorData[i]);
   
+  myGraph.drawChart(queueData);
+
   // Bật ngắt để cho phép chuyển mode, người dùng ấn nút thì sẽ thoát vòng while của hàm enableMode1()
   enableInterrupt = true;
 
@@ -101,10 +106,19 @@ void enableMode1() {
       digitalWrite(readLED, LOW); // Tắt đèn LED mặc định của ESP32
       return;
     }
-
-    myGraph.drawChart(myGraph.generateData(keyRange, valueRange, 10));
-    delay(2000);
+    delay(400);
     myGraph.deleteChart();
+
+    keyRange = std::make_pair(keyRange.first + 1, keyRange.second + 1);
+    myGraph.deleteRulerX();
+    myGraph.drawRulerX(keyRange, pointNum.first);
+    
+    int value = valueRange.first + std::rand() % (valueRange.second - valueRange.first + 1);
+    queueData.push(std::make_pair(keyRange.second, value));
+    queueData.pop();
+    
+    myGraph.drawChart(queueData);
+    
   }
 }
 void enableMode2() {
